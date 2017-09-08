@@ -1,20 +1,41 @@
 require 'oystercard'
 
 describe Oystercard do
+  subject (:oystercard) {described_class.new}
+
   it 'initialized card will have a balance of 0' do
-    expect(subject.balance).to eq(0)
+    expect(oystercard.balance).to eq(0)
+  end
+
+  it 'initially the card is not in journey' do
+    expect(oystercard.in_journey?).to eq(false)
   end
 
   it 'Top up balance' do
-    subject.top_up(10)
-    expect(subject.balance).to eq 10
+    oystercard.top_up(10)
+    expect(oystercard.balance).to eq 10
+  end
+
+  describe '#touch in' do
+    it 'allows the user to touch in' do
+    oystercard.top_up(10)
+    expect{oystercard.touch_in}.to change{oystercard.in_journey?}.from(false).to(true)
+    end
+  end
+
+  describe '#touch out' do
+    it 'allows the user to touch out' do
+      oystercard.top_up(10)
+      oystercard.touch_in
+      expect{oystercard.touch_out}.to change{oystercard.in_journey?}.from(true).to(false)
+    end
   end
 
   describe '#error' do
   it 'Raises an error when balance exceeds £90' do
     maximum_balance = Oystercard::MAXIMUM_BALANCE
-    subject.top_up(maximum_balance)
-    expect{subject.top_up 1}.to raise_error "Sorry, you have exceeded the maximum balance (£#{maximum_balance})"
+    oystercard.top_up(maximum_balance)
+    expect{oystercard.top_up 1}.to raise_error "Sorry, you have exceeded the maximum balance (£#{maximum_balance})"
     end
   end
 end
