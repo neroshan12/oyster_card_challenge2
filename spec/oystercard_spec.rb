@@ -32,7 +32,6 @@ describe Oystercard do
     end
 
     it 'Raise an error when do not of funds to travel' do
-      p oystercard
       expect{oystercard.touch_in}.to raise_error 'Not enough funds for travel'
     end
   end
@@ -43,19 +42,19 @@ describe Oystercard do
       oystercard.touch_in
       expect{ oystercard.touch_out }.to change{ oystercard.in_journey? }.from(true).to(false)
     end
+    it 'charges the user when they touch out' do
+      oystercard.top_up(10)
+      oystercard.touch_in
+      minimum_fare = described_class::MINIMUM_FARE
+      expect{oystercard.touch_out}.to change{oystercard.balance}.by -minimum_fare
+    end
   end
 
   describe '#error' do
-
     it 'Raises an error when balance exceeds £90' do
       maximum_balance = Oystercard::MAXIMUM_BALANCE
       oystercard.top_up(maximum_balance)
       expect{oystercard.top_up 1}.to raise_error "Sorry, you have exceeded the maximum balance (£#{maximum_balance})"
     end
-
-    # it 'Raise an error when do not of funds to travel' do
-    #   p oystercard
-    #   expect(oystercard.touch_in).to raise_error 'Not enough funds for travel'
-    # end
   end
 end
